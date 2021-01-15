@@ -53,7 +53,13 @@ class SwiftMailerAdapter extends AbstractAdapter
             ->setTo($recipients)
             ->setReplyTo($replyTo);
 
-        $message->setBody($renderedEmail->getBody(), 'text/html');
+        $bodyPlaintext = $renderedEmail->getBodyPlaintext();
+        if ($bodyPlaintext !== null) {
+            $message->addPart($bodyPlaintext, 'text/plain');
+            $message->addPart($renderedEmail->getBody(), 'text/html');
+        } else {
+            $message->setBody($renderedEmail->getBody(), 'text/html');
+        }
 
         foreach ($attachments as $attachment) {
             $file = \Swift_Attachment::fromPath($attachment);
